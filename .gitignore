@@ -2,7 +2,11 @@ bin
 include
 lib
 .Python
-tests/
+tests/__pycache__/
+tests/*.log
+tests/tmp/
 .envrc
 __pycache__
 .idea/
+.coverage
+.env

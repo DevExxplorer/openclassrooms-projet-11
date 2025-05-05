@@ -25,12 +25,23 @@ def index():
 
 @app.route('/showSummary', methods=['POST'])
 def show_summary():
+    competitions = load_competitions()
+    clubs = load_clubs()
+
     club = [club for club in clubs if club['email'] == request.form['email']][0]
-    return render_template('welcome.html', club=club, competitions=competitions)
+
+    return render_template(
+        'welcome.html',
+        club=club,
+        competitions=competitions
+    )
 
 
 @app.route('/book/<competition>/<club>')
 def book(competition, club):
+    competitions = load_competitions()
+    clubs = load_clubs()
+
     found_club = [c for c in clubs if c['name'] == club][0]
     found_competition = [c for c in competitions if c['name'] == competition][0]
 

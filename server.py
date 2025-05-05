@@ -17,9 +17,6 @@ def load_competitions():
 app = Flask(__name__)
 app.secret_key = 'something_special'
 
-competitions = load_competitions()
-clubs = load_clubs()
-
 
 @app.route('/')
 def index():
@@ -54,6 +51,9 @@ def book(competition, club):
 
 @app.route('/purchasePlaces', methods=['POST'])
 def purchase_places():
+    competitions = load_competitions()
+    clubs = load_clubs()
+
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
     places_required = int(request.form['places'])

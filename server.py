@@ -1,4 +1,6 @@
 import json
+from tkinter.messagebox import RETRY
+
 from flask import Flask, render_template, request, redirect, flash, url_for
 
 
@@ -17,24 +19,34 @@ def load_competitions():
 app = Flask(__name__)
 app.secret_key = 'something_special'
 
+competitions = load_competitions()
+clubs = load_clubs()
+
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', error='')
 
 
 @app.route('/showSummary', methods=['POST'])
 def show_summary():
-    competitions = load_competitions()
-    clubs = load_clubs()
+    email = request.form.get('email')
+    club = [club for club in clubs if club['email'] == email]
 
-    club = [club for club in clubs if club['email'] == request.form['email']][0]
+    if not email:
+        return render_template(
+            'index.html',
+            error='Not email sent'
+        )
 
-    return render_template(
-        'welcome.html',
-        club=club,
-        competitions=competitions
-    )
+    if club:
+        return render_template('welcome.html', club=club[0], competitions=competitions)
+    else:
+        return render_template(
+            'index.html',
+            error='Sorry, that email wasn\'t found.'
+        )
+
 
 
 @app.route('/book/<competition>/<club>')

@@ -10,7 +10,7 @@ def client():
 
 
 @pytest.fixture
-def mock_clubs_and_competitions():
+def data_mock():
         competition = [
             {
                 "name": "Test Competition",

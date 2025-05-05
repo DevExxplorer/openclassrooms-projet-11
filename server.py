@@ -17,9 +17,6 @@ def load_competitions():
 app = Flask(__name__)
 app.secret_key = 'something_special'
 
-competitions = load_competitions()
-clubs = load_clubs()
-
 
 @app.route('/')
 def index():
@@ -54,19 +51,26 @@ def book(competition, club):
 
 @app.route('/purchasePlaces', methods=['POST'])
 def purchase_places():
+    competitions = load_competitions()
+    clubs = load_clubs()
+
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
     places_required = int(request.form['places'])
     competition['numberOfPlaces'] = int(competition['numberOfPlaces']) - places_required
+    display_points(club, places_required)
     flash('Great-booking complete!')
     return render_template(
         'welcome.html',
         club=club,
-        competitions=competitions
+        competitions=competitions,
+        data_json=places_required
     )
 
 
-# TODO: Add route for points display
+def display_points(club, places_required):
+    club['points'] = int(club['points']) - places_required
+    return club
 
 
 @app.route('/logout')

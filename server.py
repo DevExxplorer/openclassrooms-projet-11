@@ -48,12 +48,8 @@ def show_summary():
         )
 
 
-
 @app.route('/book/<competition>/<club>')
 def book(competition, club):
-    competitions = load_competitions()
-    clubs = load_clubs()
-
     found_club = [c for c in clubs if c['name'] == club][0]
     found_competition = [c for c in competitions if c['name'] == competition][0]
 
@@ -74,26 +70,33 @@ def book(competition, club):
 
 @app.route('/purchasePlaces', methods=['POST'])
 def purchase_places():
-    competitions = load_competitions()
-    clubs = load_clubs()
-
+    # Donnée de la competition et du club séléctionné
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
+
+    # Gestion de la validation du formulaire
     places_required = int(request.form['places'])
-    competition['numberOfPlaces'] = int(competition['numberOfPlaces']) - places_required
-    display_points(club, places_required)
-    flash('Great-booking complete!')
+    competition_places = int(competition['numberOfPlaces'])
+    club_points = int(club['points'])
+
+    if 0 < places_required <= 12:
+        if places_required <= competition_places:
+            if places_required <= club_points:
+                competition['numberOfPlaces'] = competition_places - places_required
+                club['points'] = str(int(club['points']) - places_required)
+                flash('Votre réservation est validée !')
+            else:
+                flash(f'Vous n\'avez pas assez de points., il ne vous en reste que { club_points } ')
+        else:
+            flash(f'Tu ne peux pas réserver plus de {competition_places} places')
+    else:
+        flash('Vous ne pouvez réserver que 1 à 12 places par tournoi')
+
     return render_template(
         'welcome.html',
         club=club,
         competitions=competitions,
-        data_json=places_required
     )
-
-
-def display_points(club, places_required):
-    club['points'] = int(club['points']) - places_required
-    return club
 
 
 @app.route('/logout')

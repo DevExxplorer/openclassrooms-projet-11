@@ -1,5 +1,6 @@
 import json
-from tkinter.messagebox import RETRY
+
+from datetime import date, datetime
 
 from flask import Flask, render_template, request, redirect, flash, url_for
 
@@ -40,7 +41,12 @@ def show_summary():
         )
 
     if club:
-        return render_template('welcome.html', club=club[0], competitions=competitions)
+        return render_template(
+            'welcome.html',
+            club=club[0],
+            competitions=competitions,
+            date_competitions=check_date_competitions
+        )
     else:
         return render_template(
             'index.html',
@@ -97,6 +103,15 @@ def purchase_places():
         club=club,
         competitions=competitions,
     )
+
+
+def check_date_competitions(date_competition):
+    competition_datetime = datetime.strptime(date_competition, "%Y-%m-%d %H:%M:%S")
+
+    if competition_datetime < datetime.now():
+        return 'La compétition est déjà passée'
+
+    return
 
 
 @app.route('/logout')

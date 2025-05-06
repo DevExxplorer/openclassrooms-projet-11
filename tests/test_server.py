@@ -9,6 +9,7 @@ def test_index(client):
     """
     response = client.get('/')
     assert response.status_code == 200
+    assert response.content_type == 'text/html; charset=utf-8'
 
 
 def test_purchase_places(client, data_mock):

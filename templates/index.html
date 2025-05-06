@@ -3,10 +3,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GUDLFT Registration</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <h1>Welcome to the GUDLFT Registration Portal!</h1>
-    Please enter your secretary email to continue:
+    <p>Please enter your secretary email to continue:</p>
     <form action="showSummary" method="post">
         <label for="email">Email:</label>
         <input type="email" name="email" id=""/>
@@ -15,5 +16,24 @@
     {% if error %}
         <div class="alert"><span>{{ error }}</span></div>
     {% endif %}
+
+    <div class="board_points">
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col">Club</th>
+                    <th scope="col">Points remaining</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for club in clubs%}
+                <tr>
+                    <th scope="row">{{ club['name'] }}</th>
+                    <td>{{ club['points'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>

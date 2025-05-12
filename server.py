@@ -106,12 +106,12 @@ def purchase_places():
         'welcome.html',
         club=club,
         competitions=competitions,
+        date_competitions=check_date_competitions
     )
 
 
 def check_date_competitions(date_competition):
     competition_datetime = datetime.strptime(date_competition, "%Y-%m-%d %H:%M:%S")
-
     if competition_datetime < datetime.now():
         return 'La compétition est déjà passée'
 

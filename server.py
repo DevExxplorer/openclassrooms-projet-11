@@ -42,7 +42,7 @@ def show_summary():
         return render_template(
             'index.html',
             error='Not email sent'
-        )
+        ), 400
 
     if club:
         return render_template(

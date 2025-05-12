@@ -80,11 +80,16 @@ def book(competition, club):
 
 @app.route('/purchasePlaces', methods=['POST'])
 def purchase_places():
-    # Donnée de la competition et du club séléctionné
-    competition = [c for c in competitions if c['name'] == request.form['competition']][0]
-    club = [c for c in clubs if c['name'] == request.form['club']][0]
+    competition = next((c for c in competitions if c['name'] == request.form['competition'][0]), None)
+    if not competition:
+        flash(f"La compétition { request.form['competition'][0]} n'a pas été trouvée.")
+        return redirect('/')
 
-    # Gestion de la validation du formulaire
+    club = next((c for c in clubs if c['name'] == request.form['club'][0]), None)
+    if not club:
+        flash(f"Le club {request.form['club'][0]} n'a pas été trouvé.")
+        return redirect('/')
+
     places_required = int(request.form['places'])
     competition_places = int(competition['numberOfPlaces'])
     club_points = int(club['points'])

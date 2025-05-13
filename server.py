@@ -32,80 +32,83 @@ def index():
         error=''
     )
 
-
 @app.route('/showSummary', methods=['POST'])
 def show_summary():
     email = request.form.get('email')
-    club = [club for club in clubs if club['email'] == email]
 
     if not email:
-        return render_template(
-            'index.html',
-            error='Not email sent'
-        ), 400
+        return render_template('index.html', error='No email sent'), 400
 
-    if club:
-        return render_template(
-            'welcome.html',
-            club=club[0],
-            competitions=competitions,
-            date_competitions=check_date_competitions
-        )
-    else:
-        return render_template(
-            'index.html',
-            error='Sorry, that email wasn\'t found.'
-        )
+    loaded_clubs = load_clubs()
+    loaded_competitions = load_competitions()
 
+    club = next((club for club in loaded_clubs if club['email'] == email), None)
+
+    if not club:
+        return render_template('index.html', error='Sorry, that email wasn\'t found.'), 400
+
+    return render_template(
+        'welcome.html',
+        club=club,
+        competitions=loaded_competitions,
+        date_competitions=check_date_competitions
+    )
+
+def check_date_competitions(date_competition):
+    if not date_competition:
+        return None
+
+    competition_datetime = datetime.strptime(date_competition, "%Y-%m-%d %H:%M:%S")
+
+    if competition_datetime < datetime.now():
+        return 'La compétition est déjà passée'
+
+    return None
 
 @app.route('/book/<competition>/<club>')
 def book(competition, club):
-    found_club = [c for c in clubs if c['name'] == club][0]
-    found_competition = [c for c in competitions if c['name'] == competition][0]
+    found_club = find_by_name(clubs, club)
+    found_competition = find_by_name(competitions, competition)
 
-    if found_club and found_competition:
-        return render_template(
-            'booking.html',
-            club=found_club,
-            competition=found_competition
-        )
-    else:
-        flash("Something went wrong-please try again")
-        return render_template(
-            'welcome.html',
-            club=club,
-            competitions=competitions
-        )
+    if not found_club or not found_competition:
+        return redirect(url_for('index'))
+
+    return render_template(
+        'booking.html',
+        club=found_club,
+        competition=found_competition
+    )
 
 
 @app.route('/purchasePlaces', methods=['POST'])
 def purchase_places():
-    competition = next((c for c in competitions if c['name'] == request.form['competition'][0]), None)
+    club_name = request.form.get('club')
+    competition_name = request.form.get('competition')
+    places_required = int(request.form.get('places', 0))
+
+    competition = find_by_name(competitions, competition_name)
     if not competition:
-        flash(f"La compétition { request.form['competition'][0]} n'a pas été trouvée.")
-        return redirect('/')
+        flash(f"La compétition {competition_name} n'a pas été trouvée.")
+        return redirect(url_for('index'))
 
-    club = next((c for c in clubs if c['name'] == request.form['club'][0]), None)
+    club = find_by_name(clubs, club_name)
     if not club:
-        flash(f"Le club {request.form['club'][0]} n'a pas été trouvé.")
-        return redirect('/')
+        flash(f"Le club {club_name} n'a pas été trouvé.")
+        return redirect(url_for('index'))
 
-    places_required = int(request.form['places'])
     competition_places = int(competition['numberOfPlaces'])
     club_points = int(club['points'])
 
-    if 0 < places_required <= 12:
-        if places_required <= competition_places:
-            if places_required <= club_points:
-                competition['numberOfPlaces'] = competition_places - places_required
-                club['points'] = str(int(club['points']) - places_required)
-                flash('Votre réservation est validée !')
-            else:
-                flash(f'Vous n\'avez pas assez de points., il ne vous en reste que { club_points } ')
-        else:
-            flash(f'Tu ne peux pas réserver plus de {competition_places} places')
+    if not (1 <= places_required <= 12):
+        flash('Vous ne pouvez réserver que 1 à 12 places par tournoi.')
+    elif places_required > competition_places:
+        flash(f'Tu ne peux pas réserver plus de {competition_places} places.')
+    elif places_required > club_points:
+        flash(f'Pas assez de points. Il vous en reste {club_points}.')
     else:
-        flash('Vous ne pouvez réserver que 1 à 12 places par tournoi')
+        competition['numberOfPlaces'] = competition_places - places_required
+        club['points'] = str(club_points - places_required)
+        flash('Votre réservation est validée !')
 
     return render_template(
         'welcome.html',
@@ -115,14 +118,9 @@ def purchase_places():
     )
 
 
-def check_date_competitions(date_competition):
-    competition_datetime = datetime.strptime(date_competition, "%Y-%m-%d %H:%M:%S")
-    if competition_datetime < datetime.now():
-        return 'La compétition est déjà passée'
-
-    return
-
-
 @app.route('/logout')
 def logout():
     return redirect(url_for('index'))
+
+def find_by_name(items, name):
+    return next((item for item in items if item['name'] == name), None)

@@ -51,24 +51,26 @@ def show_summary():
         'welcome.html',
         club=club,
         competitions=loaded_competitions,
-        date_competitions=check_date_competitions
     )
 
-def check_date_competitions(date_competition):
-    if not date_competition:
-        return None
-
-    competition_datetime = datetime.strptime(date_competition, "%Y-%m-%d %H:%M:%S")
-
-    if competition_datetime < datetime.now():
-        return 'La compétition est déjà passée'
-
-    return None
+# def check_date_competitions(date_competition):
+#     if not date_competition:
+#         return None
+#
+#     competition_datetime = datetime.strptime(date_competition, "%Y-%m-%d %H:%M:%S")
+#
+#     if competition_datetime < datetime.now():
+#         return 'La compétition est déjà passée'
+#
+#     return None
 
 @app.route('/book/<competition>/<club>')
 def book(competition, club):
-    found_club = find_by_name(clubs, club)
-    found_competition = find_by_name(competitions, competition)
+    print(f"Competition: {competition}, Club: {club}")
+    print('TEST', clubs)
+    found_club = next((club_item for club_item in clubs if club_item['name'] == club), None)
+    found_competition = next((competition_item for competition_item in competitions if competition_item['name'] == competition), None)
+    print(f"found_competition: {found_competition}, found_club: {found_club}")
 
     if not found_club or not found_competition:
         return redirect(url_for('index'))
@@ -79,48 +81,20 @@ def book(competition, club):
         competition=found_competition
     )
 
-
 @app.route('/purchasePlaces', methods=['POST'])
 def purchase_places():
-    club_name = request.form.get('club')
-    competition_name = request.form.get('competition')
-    places_required = int(request.form.get('places', 0))
-
-    competition = find_by_name(competitions, competition_name)
-    if not competition:
-        flash(f"La compétition {competition_name} n'a pas été trouvée.")
-        return redirect(url_for('index'))
-
-    club = find_by_name(clubs, club_name)
-    if not club:
-        flash(f"Le club {club_name} n'a pas été trouvé.")
-        return redirect(url_for('index'))
-
-    competition_places = int(competition['numberOfPlaces'])
-    club_points = int(club['points'])
-
-    if not (1 <= places_required <= 12):
-        flash('Vous ne pouvez réserver que 1 à 12 places par tournoi.')
-    elif places_required > competition_places:
-        flash(f'Tu ne peux pas réserver plus de {competition_places} places.')
-    elif places_required > club_points:
-        flash(f'Pas assez de points. Il vous en reste {club_points}.')
-    else:
-        competition['numberOfPlaces'] = competition_places - places_required
-        club['points'] = str(club_points - places_required)
-        flash('Votre réservation est validée !')
-
+    competition = [c for c in competitions if c['name'] == request.form['competition']][0]
+    club = [c for c in clubs if c['name'] == request.form['club']][0]
+    places_required = int(request.form['places'])
+    competition['numberOfPlaces'] = int(competition['numberOfPlaces']) - places_required
+    flash('Great-booking complete!')
     return render_template(
         'welcome.html',
         club=club,
-        competitions=competitions,
-        date_competitions=check_date_competitions
+        competitions=competitions
     )
 
 
 @app.route('/logout')
 def logout():
     return redirect(url_for('index'))
-
-def find_by_name(items, name):
-    return next((item for item in items if item['name'] == name), None)

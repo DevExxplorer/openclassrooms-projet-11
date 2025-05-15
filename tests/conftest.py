@@ -1,8 +1,7 @@
 import pytest
-import json
-
-from server import app, load_competitions, load_clubs
-from unittest.mock import mock_open, patch
+from unittest.mock import patch
+import server
+from server import app
 
 
 @pytest.fixture
@@ -13,54 +12,24 @@ def client():
 
 @pytest.fixture
 def data_mock():
-        competitions = [
-            {"name": "Compétition 1", "date": "2026-03-27 10:00:00", "numberOfPlaces": "20"},
-            {"name": "Compétition 2", "date": "2026-03-27 10:00:00", "numberOfPlaces": "22"}
+    return {
+        "clubs": [
+            {"name": "Club 1", "email": "club1@example.com", "points": "10"},
+            {"name": "Club 2", "email": "club2@example.com", "points": "5"}
+        ],
+        "competitions": [
+            {"name": "Competition 1", "date": "2026-03-27 10:00:00", "numberOfPlaces": "20"},
+            {"name": "Competition 2", "date": "2026-03-27 10:00:00", "numberOfPlaces": "20"}
         ]
-        clubs = [
-            {"name": "Club A", "email": "a@example.com", "points": "10"},
-            {"name": "Club B", "email": "b@example.com", "points": "12"}
-        ]
-
-        return {
-            'clubs': clubs,
-            'competitions': competitions,
-            'places': 12
-        }
-
-@pytest.fixture
-def loaded_competitions(data_mock):
-    test_daat_competitions = {
-        "competitions": data_mock["competitions"]
     }
-    mock_competitions = mock_open(read_data=json.dumps(test_daat_competitions))
 
-    with patch("builtins.open", mock_competitions):
-        competitions = load_competitions()
-        assert competitions == test_daat_competitions["competitions"]
 
-        for competition in competitions:
-            assert "name" in competition
-            assert "date" in competition
-            assert "numberOfPlaces" in competition
+@pytest.fixture(autouse=True)
+def patch_data(data_mock):
+    with patch("server.load_clubs", return_value=data_mock["clubs"]), \
+            patch("server.load_competitions", return_value=data_mock["competitions"]):
 
-        return competitions
+        server.clubs[:] = data_mock["clubs"]
+        server.competitions[:] = data_mock["competitions"]
 
-@pytest.fixture
-def loaded_clubs(data_mock):
-    test_data_clubs = {
-        "clubs": data_mock['clubs']
-    }
-    mock_clubs = mock_open(read_data=json.dumps(test_data_clubs))
-
-    with patch("builtins.open", mock_clubs):
-        clubs = load_clubs()
-        assert clubs == test_data_clubs["clubs"]
-
-        for club in clubs:
-            assert "name" in club
-            assert "email" in club
-            assert "points" in club
-
-        return clubs
-
+        yield

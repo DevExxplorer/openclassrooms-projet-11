@@ -15,7 +15,7 @@ def data_mock():
     return {
         "clubs": [
             {"name": "Club 1", "email": "club1@example.com", "points": "10"},
-            {"name": "Club 2", "email": "club2@example.com", "points": "5"}
+            {"name": "Club 2", "email": "club2@example.com", "points": "5"},
         ],
         "competitions": [
             {"name": "Competition 1", "date": "2026-03-27 10:00:00", "numberOfPlaces": "20"},

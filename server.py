@@ -81,18 +81,22 @@ def show_summary():
     if not club:
         return render_template('index.html', error='Sorry, that club wasn\'t found.'), 400
 
+        # Ajout d'un champ 'is_active' à chaque compétition
+    for competition in competitions:
+        competition['is_active'] = check_date_competitions(competition.get('date')) is None
+
     return render_template('welcome.html', club=club, competitions=competitions)
 
-# def check_date_competitions(date_competition):
-#     if not date_competition:
-#         return None
-#
-#     competition_datetime = datetime.strptime(date_competition, "%Y-%m-%d %H:%M:%S")
-#
-#     if competition_datetime < datetime.now():
-#         return 'La compétition est déjà passée'
-#
-#     return None
+def check_date_competitions(date_competition):
+    if not date_competition:
+        return None
+
+    competition_datetime = datetime.strptime(date_competition, "%Y-%m-%d %H:%M:%S")
+
+    if competition_datetime < datetime.now():
+        return 'La compétition est déjà passée'
+
+    return None
 
 @app.route('/book/<competition>/<club>')
 def book(competition, club):

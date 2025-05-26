@@ -1,51 +1,151 @@
 # gudlift-registration
 
-1. Why
+## 1. Pourquoi
 
+Il s'agit d'un projet de preuve de concept (POC) pour montrer une version allégée de notre plateforme de réservation de compétitions. L'objectif est de garder les choses aussi légères que possible et d'utiliser les retours des utilisateurs pour itérer.
 
-    This is a proof of concept (POC) project to show a light-weight version of our competition booking platform. The aim is the keep things as light as possible, and use feedback from the users to iterate.
+## 2. Pour commencer
 
-2. Getting Started
+Ce projet utilise les technologies suivantes :
 
-    This project uses the following technologies:
+- **Python v3.x+**
+- **Flask** - Alors que Django fait beaucoup de choses pour nous dès le départ, Flask nous permet d'ajouter uniquement ce dont nous avons besoin.
+- **[Environnement virtuel](https://virtualenv.pypa.io/en/stable/installation.html)** - Cela garantit que vous pourrez installer les bons packages sans interférer avec Python sur votre machine. Avant de commencer, assurez-vous de l'avoir installé globalement.
 
-    * Python v3.x+
+## 3. Installation
 
-    * [Flask](https://flask.palletsprojects.com/en/1.1.x/)
+- Après le clonage, accédez au répertoire et tapez `virtualenv .`. Cela configurera un environnement Python virtuel dans ce répertoire.
 
-        Whereas Django does a lot of things for us out of the box, Flask allows us to add only what we need. 
-     
+- Ensuite, tapez `source bin/activate`. Vous devriez voir que votre invite de commande a changé pour afficher le nom du dossier. Cela signifie que vous pouvez installer des packages ici sans affecter les fichiers à l'extérieur. Pour désactiver, tapez `deactivate`.
 
-    * [Virtual environment](https://virtualenv.pypa.io/en/stable/installation.html)
+- Plutôt que de chercher les packages dont vous avez besoin, vous pouvez les installer en une seule étape. Tapez `pip install -r requirements.txt`. Cela installera tous les packages listés dans le fichier respectif. Si vous installez un package, assurez-vous que les autres le sachent en mettant à jour le fichier requirements.txt. Un moyen simple de le faire est `pip freeze > requirements.txt`.
 
-        This ensures you'll be able to install the correct packages without interfering with Python on your machine.
+- Flask nécessite que vous définissiez une variable d'environnement pour le fichier Python. Vous devrez définir le fichier comme étant `server.py`. Consultez [ici](https://flask.palletsprojects.com/en/latest/quickstart/) pour plus de détails.
 
-        Before you begin, please ensure you have this installed globally. 
+- Vous devriez maintenant être prêt à tester l'application. Dans le répertoire, tapez soit `flask run` soit `python -m flask run`. L'application devrait répondre avec une adresse à laquelle vous devriez pouvoir accéder via votre navigateur.
 
+## 4. Configuration actuelle
 
-3. Installation
+L'application est alimentée par des fichiers JSON. C'est pour éviter d'avoir une base de données jusqu'à ce que nous en ayons réellement besoin. Les principaux sont :
 
-    - After cloning, change into the directory and type <code>virtualenv .</code>. This will then set up a a virtual python environment within that directory.
+- **competitions.json** - liste des compétitions
+- **clubs.json** - liste des clubs avec les informations pertinentes. Vous pouvez regarder ici pour voir quelles adresses e-mail l'application acceptera pour la connexion.
 
-    - Next, type <code>source bin/activate</code>. You should see that your command prompt has changed to the name of the folder. This means that you can install packages in here without affecting affecting files outside. To deactivate, type <code>deactivate</code>
+## 5. Tests
 
-    - Rather than hunting around for the packages you need, you can install in one step. Type <code>pip install -r requirements.txt</code>. This will install all the packages listed in the respective file. If you install a package, make sure others know by updating the requirements.txt file. An easy way to do this is <code>pip freeze > requirements.txt</code>
+Ce projet utilise **pytest** comme framework de test. Pytest offre une syntaxe simple et des fonctionnalités puissantes pour écrire et exécuter des tests.
 
-    - Flask requires that you set an environmental variable to the python file. However you do that, you'll want to set the file to be <code>server.py</code>. Check [here](https://flask.palletsprojects.com/en/1.1.x/quickstart/#a-minimal-application) for more details
+Nous utilisons également **coverage** pour mesurer la couverture de code et nous assurer que nos tests couvrent correctement l'ensemble de l'application.
 
-    - You should now be ready to test the application. In the directory, type either <code>flask run</code> or <code>python -m flask run</code>. The app should respond with an address you should be able to go to using your browser.
+## 6. Liens vers ressources externes
 
-4. Current Setup
+- [Documentation officielle Flask](https://flask.palletsprojects.com/)
+- [Guide d'utilisation pytest](https://docs.pytest.org/)
+- [Documentation coverage](https://coverage.readthedocs.io/)
+- [Guide des environnements virtuels Python](https://virtualenv.pypa.io/en/stable/)
+- [Bonnes pratiques Flask](https://flask.palletsprojects.com/en/latest/patterns/)
 
-    The app is powered by [JSON files](https://www.tutorialspoint.com/json/json_quick_guide.htm). This is to get around having a DB until we actually need one. The main ones are:
-     
-    * competitions.json - list of competitions
-    * clubs.json - list of clubs with relevant information. You can look here to see what email addresses the app will accept for login.
+## 7. Configurations particulières
 
-5. Testing
+### Variables d'environnement
+Créez un fichier `.env` à la racine du projet avec :
+```
+FLASK_APP=server.py
+FLASK_DEBUG=1
+```
 
-    You are free to use whatever testing framework you like-the main thing is that you can show what tests you are using.
+### Structure des fichiers JSON
 
-    We also like to show how well we're testing, so there's a module called 
-    [coverage](https://coverage.readthedocs.io/en/coverage-5.1/) you should add to your project.
+**competitions.json** :
+```json
+{
+    "competitions": [
+        {
+            "name": "Spring Festival",
+            "date": "2026-03-27 10:00:00",
+            "numberOfPlaces": "25"
+        },
+        {
+            "name": "Fall Classic",
+            "date": "2020-10-22 13:30:00",
+            "numberOfPlaces": "13"
+        }
+    ]
+}
+```
 
+**clubs.json** :
+```json
+{
+    "clubs": [
+        {
+            "name": "Simply Lift",
+            "email": "john@simplylift.co",
+            "points": "13"
+        },
+        {
+            "name": "Iron Temple",
+            "email": "admin@irontemple.com",
+            "points": "4"
+        },
+        {
+            "name": "She Lifts",
+            "email": "kate@shelifts.co.uk",
+            "points": "12"
+        }
+    ]
+}
+```
+
+## 8. Conventions de nommage
+
+### Structure des fichiers et dossiers
+```
+gudlift-registration/
+├── server.py              # Point d'entrée Flask
+├── requirements.txt       # Dépendances Python
+├── .env                  # Variables d'environnement
+├── pytest.ini            # Configuration pytest
+├── .coveragerc           # Configuration coverage
+├── competitions.json     # Données des compétitions
+├── clubs.json           # Données des clubs
+├── templates/           # Templates HTML
+├── tests/               # Tous les tests
+│   ├── conftest.py     # Configuration des tests
+│   ├── functional/     # Tests de bout en bout
+│   ├── integration/    # Tests d'intégration
+│   ├── performance/    # Tests de performance (Locust)
+│   └── unit/          # Tests unitaires
+└── README.md           # Ce fichier
+```
+
+### Conventions pour les tests
+- Tous les fichiers de test doivent commencer par `test_`
+- Les classes de test doivent commencer par `Test`
+- Les fonctions de test doivent commencer par `test_`
+
+## Commandes utiles
+
+### Exécuter l'application
+```bash
+flask run
+```
+
+### Exécuter les tests
+```bash
+# Tous les tests
+pytest
+
+# Tests avec coverage
+pytest --cov=. --cov-report=html
+
+# Tests spécifiques
+pytest tests/unit/
+pytest tests/integration/
+pytest tests/functional/
+```
+
+### Tests de performance
+```bash
+locust -f tests/performance/locustfile.py
+```

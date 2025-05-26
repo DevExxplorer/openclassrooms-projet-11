@@ -11,3 +11,10 @@ pytest==8.3.5
 pytest-cov==6.1.1
 python-dotenv==1.1.0
 Werkzeug==1.0.1
+pip~=25.1
+wheel~=0.41.2
+blinker~=1.9.0
+setuptools~=80.3.1
+greenlet~=3.2.1
+platformdirs~=4.3.7
+locust~=2.37.0

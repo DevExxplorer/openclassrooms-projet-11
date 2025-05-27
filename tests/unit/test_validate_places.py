@@ -19,8 +19,7 @@ def test_validate_places():
     competition_name = "Test Competition"
 
     # Nettoyer les données de test précédentes
-    if club_name in club_bookings:
-        del club_bookings[club_name]
+    club_bookings.pop(club_name, None)
 
     # Cas valide : places = 5, qui est <= competition_places et <= club_points
     validate_places(5, competition_places, club_points, club_name, competition_name)
@@ -49,8 +48,7 @@ def test_validate_places_booking_limit():
     competition_name = "Test Competition Limit"
 
     # Nettoyer les données de test précédentes
-    if club_name in club_bookings:
-        del club_bookings[club_name]
+    club_bookings.pop(club_name, None)
 
     # Simuler qu'il y a déjà 8 places réservées
     club_bookings[club_name] = {competition_name: 8}
